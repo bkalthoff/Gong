@@ -12,12 +12,12 @@ var games = make(map[string]game)
 
 type gamer struct {
 	score byte
-	pos   int16
+	pos   uint16
 	conn  net.Conn
 }
 type ball struct {
-	xpos int16
-	ypos int16
+	xpos uint16
+	ypos uint16
 }
 type game struct {
 	balls  []ball
@@ -37,15 +37,20 @@ func handleConnection(conn net.Conn) {
 			logErr(err)
 		}
 		if len(s) > 1 {
+			g, ok := games[s]
+			if !ok {
+				games[s] = game{}
+			}
 			fmt.Println(s)
 			conn.Write([]byte("received gameid\n"))
 			numGamers := len(games[s].gamers)
 			if numGamers >= 2 {
 				return
 			}
-			g := gamer{}
-			g.conn = conn
-			games[s].gamers[numGamers] = &g
+			var gameAdd *gamer = &gamer{}
+			gameAdd.conn = conn
+			g.gamers[0] = gameAdd
+			break
 		}
 	}
 	for {
